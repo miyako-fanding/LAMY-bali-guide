@@ -8,8 +8,8 @@ def update_html_to_cdn(directory, github_id, repo_name):
     # 2. 폴더 안의 모든 HTML 파일 스캔
     html_files = [f for f in os.listdir(directory) if f.endswith('.html')]
     
-    # 3. 뼈대 교정기(정규식): 이미 http가 붙은 외부 링크는 무시하고 순수 로컬 이미지만 타겟팅
-    pattern = r'(src=["\'])(?!http|//)([^"\']+?\.(?:jpg|jpeg|png|gif|svg))(["\'])'
+    # 3. 뼈대 교정기(정규식): src=" 또는 image: " 형태를 모두 타겟팅하도록 로봇의 시야 확장
+    pattern = r'((?:src|image)\s*(?:=|:)\s*["\'])(?!http|//)([^"\']+?\.(?:jpg|jpeg|png|gif|svg))(["\'])'
     
     success_count = 0
     for file_name in html_files:
