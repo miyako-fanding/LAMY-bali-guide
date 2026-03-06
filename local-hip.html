@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SEMINYAK & CANGGU | FINAL ARCHIVE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;700;900&family=Pretendard:wght@200;400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #F9F9F7;
+            --point-red: #CE1126; 
+            --text-main: #121212;
+            --text-light: #999;
+            --side-gap: 24px;
+            --transition-speed: 1.0s;
+            --bezier: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            font-family: 'Pretendard', sans-serif; 
+            color: var(--text-main); 
+            line-height: 1.6;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* 🎬 인트로 오버레이 */
+        #intro-overlay {
+            position: fixed; inset: 0; background-color: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity var(--transition-speed) var(--bezier), visibility var(--transition-speed);
+        }
+        #intro-overlay img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6); }
+        .intro-title { position: relative; z-index: 10; font-family: 'Montserrat', sans-serif; font-size: 36px; font-weight: 100; color: #fff; letter-spacing: 0.25em; text-align: center; }
+
+        /* 🏛️ 메인 콘텐츠 */
+        #main-content {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 1.5s var(--bezier), transform 1.5s var(--bezier);
+            padding-top: env(safe-area-inset-top);
+        }
+        #main-content.active { opacity: 1; transform: translateY(0); }
+
+        /* 🖼️ Hero Section */
+        .hero { width: 100%; height: 75dvh; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px var(--side-gap); }
+        .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85); }
+        .hero-content { position: relative; z-index: 10; color: white; }
+        .h-tag { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; margin-bottom: 12px; }
+        .h-title { font-family: 'Montserrat', sans-serif; font-size: 50px; font-weight: 100; line-height: 0.9; letter-spacing: -0.04em; }
+        .h-title b { font-weight: 900; display: block; }
+
+        /* 🏛️ 섹션 타이틀 */
+        section { padding: 100px 0 0; width: 100%; }
+        .s-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; color: var(--point-red); margin-bottom: 12px; padding: 0 var(--side-gap); display: block; text-transform: uppercase; }
+        .s-title { font-size: 24px; font-weight: 400; letter-spacing: -0.04em; margin-bottom: 30px; margin-inline: var(--side-gap); padding-bottom: 12px; border-bottom: 1px solid #121212; }
+        
+        .sub-title { font-size: 16px; font-weight: 700; margin: 0 var(--side-gap) 15px; color: #555; }
+
+        /* 📍 Index 01: Map */
+        .map-section { padding: 0 var(--side-gap); }
+        .map-frame { width: 100%; height: 260px; border-radius: 2px; overflow: hidden; background: #eee; position: relative; border: 0.5px solid #ddd; }
+        .map-frame img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.1) brightness(0.9); }
+        .map-overlay-btn { position: absolute; bottom: 20px; right: 20px; padding: 12px 20px; background: rgba(0,0,0,0.8); color: white; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; border-radius: 2px; text-decoration: none; }
+
+        /* 🍱 가로 스크롤 레이아웃 */
+        .scroller-container { position: relative; width: 100%; }
+        .h-scroller { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 var(--side-gap) 20px; scroll-padding-inline: var(--side-gap); scrollbar-width: none; gap: 16px; }
+        .h-scroller::-webkit-scrollbar { display: none; }
+        .h-scroller::after { content: ''; display: block; min-width: calc(var(--side-gap) - 16px); }
+
+        .scroll-progress-box { width: 100%; display: flex; justify-content: center; margin-top: 10px; margin-bottom: 30px; }
+        .scroll-progress { width: 80px; height: 3px; background: #e0e0e0; position: relative; border-radius: 3px; overflow: hidden; }
+        .progress-bar { position: absolute; top: 0; left: 0; height: 100%; width: 40%; background: var(--point-red); border-radius: 3px; }
+
+        /* 📅 일정 카드 */
+        .day-card { flex: 0 0 240px; scroll-snap-align: start; background: #fff; padding: 30px 24px; border: 0.5px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        .day-num { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 900; color: var(--point-red); margin-bottom: 25px; display: block; }
+        .i-item { margin-bottom: 25px; display: flex; gap: 12px; align-items: flex-start; }
+        .i-time { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 700; color: #999; padding-top: 4px; min-width: 40px; }
+        .i-txt { flex: 1; }
+        .i-txt h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+        .i-txt p { font-size: 12px; color: var(--text-light); line-height: 1.4; margin-bottom: 8px; word-break: keep-all; }
+        .info-btn-text { display: inline-block; font-size: 10px; font-weight: 800; color: #111; padding: 4px 0; border-bottom: 1px solid #111; cursor: pointer; text-transform: uppercase; }
+
+        .extra-item { display: none !important; }
+        .day-card.expanded .extra-item { display: flex !important; }
+        .expand-toggle { text-align: center; font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 700; color: #777; padding-top: 15px; margin-top: 5px; border-top: 1px dashed #ddd; cursor: pointer; letter-spacing: 0.05em; transition: color 0.2s; }
+        .expand-toggle:active { color: var(--point-red); }
+
+        /* 📸 플레이스 카드 */
+        .spot-card { flex: 0 0 150px; scroll-snap-align: start; text-decoration: none; color: inherit; position: relative; }
+        .spot-img { width: 100%; aspect-ratio: 1 / 1.4; overflow: hidden; background: #eee; margin-bottom: 12px; border-radius: 2px; position: relative; }
+        .spot-img img { width: 100%; height: 100%; object-fit: cover; }
+        .info-btn-circle { position: absolute; bottom: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9); color: #000; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 300; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); backdrop-filter: blur(4px); }
+        .c-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .c-tag { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 400; color: var(--text-light); text-transform: uppercase; }
+
+        /* 🏁 Footer */
+        footer { padding: 120px var(--side-gap) 80px; text-align: center; border-top: 1px solid #eee; background: #fff; }
+        .f-logo { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.4em; text-transform: uppercase; }
+        .f-copy { font-size: 9px; color: #bbb; margin-top: 12px; letter-spacing: 0.05em; }
+
+        .fade-out { opacity: 0 !important; visibility: hidden !important; }
+
+        /* 📱 모달 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; backdrop-filter: blur(5px); padding: 24px; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .center-modal { width: 100%; max-width: 320px; background: #fff; border-radius: 12px; position: relative; overflow: hidden; transform: scale(0.9); opacity: 0; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .modal-overlay.active .center-modal { transform: scale(1); opacity: 1; }
+        .modal-img-box { width: 100%; height: 160px; background: #eee; position: relative; }
+        .modal-img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        #p-image { transition: opacity 0.3s ease; }
+        #p-image[src=""] { opacity: 0; }
+
+        .modal-body { padding: 25px 24px 30px; position: relative; }
+        .modal-close { position: absolute; top: 20px; right: 20px; width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; color: #ccc; cursor: pointer; transition: color 0.2s; z-index: 10; }
+        .modal-close:active { color: var(--point-red); }
+        .m-title { font-size: 20px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 6px; padding-right: 30px; }
+        .m-note { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 400; color: #555; margin-bottom: 24px; line-height: 1.5; word-break: keep-all; }
+        .m-info-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; font-size: 13.5px; color: #333; line-height: 1.5; }
+        .m-icon { font-size: 12px; padding-top: 2px; opacity: 0.5; }
+        .m-map-btn { display: block; width: 100%; text-align: center; margin-top: 25px; background: #111; color: #fff; padding: 16px; border-radius: 4px; font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div id="intro-overlay">
+        <img src="cangguintro.jpg">
+        <h2 class="intro-title">SEMINYAK & CANGGU<br>Hip Vibes</h2>
+    </div>
+
+    <main id="main-content">
+        <header class="hero">
+            <img src="히어로_짱구.jpg">
+            <div class="hero-content">
+                <span class="h-tag">ARCHIVE</span>
+                <h1 class="h-title">Hip Vibes<br><b>SEMINYAK & CANGGU</b></h1>
+            </div>
+        </header>
+
+        <section>
+            <span class="s-label">01 / Map</span>
+            <h2 class="s-title">보람찬투어 지도</h2>
+            <div class="map-section">
+                <div class="map-frame">
+                    <img src="map.jpg">
+                    <a href="https://maps.app.goo.gl/LFGsnfrMeC76Q4Rn9" target="_blank" class="map-overlay-btn">GO GOOGLE MAPS ↗</a>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <span class="s-label">02 / Timeline</span>
+            <h2 class="s-title">보람찬투어 추천 일정</h2>
+            <div class="scroller-container">
+                <div class="h-scroller" id="day-scroller">
+                    
+                    <div class="day-card">
+                        <span class="day-num">DAY 1</span>
+                        <div class="i-item"><span class="i-time">23:30</span><div class="i-txt"><h4>Fairfield Bali</h4><p>공항 도착 및 숙소 휴식</p><span class="info-btn-text" onclick="openPopup('fairfield')">정보 보기</span></div></div>
+                    </div>
+                    
+                    <div class="day-card">
+                        <span class="day-num">DAY 2</span>
+                        <div class="i-item"><span class="i-time">09:30</span><div class="i-txt"><h4>Revolver Seminyak</h4><p>비밀 통로 모닝 커피</p><span class="info-btn-text" onclick="openPopup('revolver')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">11:00</span><div class="i-txt"><h4>Seminyak Square</h4><p>로컬 브랜드 쇼핑</p><span class="info-btn-text" onclick="openPopup('square')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">13:00</span><div class="i-txt"><h4>Warung Nia</h4><p>전통 폭립 현지 맛집</p><span class="info-btn-text" onclick="openPopup('nia')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">15:00</span><div class="i-txt"><h4>Hotel Indigo</h4><p>새로운 베이스캠프 체크인</p><span class="info-btn-text" onclick="openPopup('indigo')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">15:30</span><div class="i-txt"><h4>SugarSand</h4><p>풀사이드 릴랙싱</p><span class="info-btn-text" onclick="openPopup('sugarsand')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">17:30</span><div class="i-txt"><h4>KU DE TA</h4><p>클래식 비치클럽 선셋</p><span class="info-btn-text" onclick="openPopup('kudeta')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">20:00</span><div class="i-txt"><h4>ShiShi Nightclub</h4><p>일식 & 럭셔리 클러빙</p><span class="info-btn-text" onclick="openPopup('shishi')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">23:30</span><div class="i-txt"><h4>Sate Babi Bu Manis</h4><p>로컬 사테 야식</p><span class="info-btn-text" onclick="openPopup('sate')">정보 보기</span></div></div>
+                        <div class="expand-toggle" onclick="toggleTimeline(this)">일정 더보기 ▾</div>
+                    </div>
+                    
+                    <div class="day-card">
+                        <span class="day-num">DAY 3</span>
+                        <div class="i-item"><span class="i-time">08:30</span><div class="i-txt"><h4>SΛMΛDI Yoga</h4><p>모닝 요가 웰니스</p><span class="info-btn-text" onclick="openPopup('samadi')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">10:30</span><div class="i-txt"><h4>Crate Cafe</h4><p>거대한 짱구 브런치</p><span class="info-btn-text" onclick="openPopup('crate')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">12:30</span><div class="i-txt"><h4>Deus Ex Machina</h4><p>서핑/커스텀 숍 구경</p><span class="info-btn-text" onclick="openPopup('deus')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">14:30</span><div class="i-txt"><h4>Sensorium Bali</h4><p>호주식 미니멀 런치</p><span class="info-btn-text" onclick="openPopup('sensorium')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">17:00</span><div class="i-txt"><h4>La Brisa</h4><p>동화 같은 빈백 선셋</p><span class="info-btn-text" onclick="openPopup('labrisa')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">19:30</span><div class="i-txt"><h4>Penny Lane</h4><p>신전 컨셉 인생샷 디너</p><span class="info-btn-text" onclick="openPopup('pennylane')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">22:00</span><div class="i-txt"><h4>Echo Beach</h4><p>파도 소리 칵테일</p><span class="info-btn-text" onclick="openPopup('echo')">정보 보기</span></div></div>
+                        <div class="expand-toggle" onclick="toggleTimeline(this)">일정 더보기 ▾</div>
+                    </div>
+                    
+                    <div class="day-card">
+                        <span class="day-num">DAY 4</span>
+                        <div class="i-item"><span class="i-time">08:00</span><div class="i-txt"><h4>Pasar Semat Sari</h4><p>재래시장 로컬 과일 체험</p><span class="info-btn-text" onclick="openPopup('pasar')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">10:00</span><div class="i-txt"><h4>Milk & Madu</h4><p>여유로운 아침 식사</p><span class="info-btn-text" onclick="openPopup('milk')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">12:00</span><div class="i-txt"><h4>MILU By Nook</h4><p>논뷰 배경 런치</p><span class="info-btn-text" onclick="openPopup('milu')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">14:00</span><div class="i-txt"><h4>Ticket To The Moon</h4><p>해먹 & 굿즈 쇼핑</p><span class="info-btn-text" onclick="openPopup('ticket')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">16:00</span><div class="i-txt"><h4>Finns Beach Club</h4><p>올나잇 힙캉스 정점</p><span class="info-btn-text" onclick="openPopup('finns')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">20:00</span><div class="i-txt"><h4>Black Sand Brewery</h4><p>수제 맥주 투어 마무리</p><span class="info-btn-text" onclick="openPopup('blacksand')">정보 보기</span></div></div>
+                        <div class="expand-toggle" onclick="toggleTimeline(this)">일정 더보기 ▾</div>
+                    </div>
+                    
+                    <div class="day-card">
+                        <span class="day-num">DAY 5-6</span>
+                        <div class="i-item"><span class="i-time">09:30</span><div class="i-txt"><h4>Woods Pererenan</h4><p>숲 인테리어 브런치</p><span class="info-btn-text" onclick="openPopup('woods')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">11:30</span><div class="i-txt"><h4>Bintang Supermarket</h4><p>엘립스 오일 쇼핑</p><span class="info-btn-text" onclick="openPopup('bintang')">정보 보기</span></div></div>
+                        <div class="i-item"><span class="i-time">13:30</span><div class="i-txt"><h4>Pison, Petitenget</h4><p>마지막 커피 타임</p><span class="info-btn-text" onclick="openPopup('pison_petitenget')">정보 보기</span></div></div>
+                        <div class="i-item extra-item"><span class="i-time">15:00</span><div class="i-txt"><h4>공항 이동</h4><p>보람찬 투어 종료</p><span class="info-btn-text" onclick="openPopup('airport')">정보 보기</span></div></div>
+                        <div class="expand-toggle" onclick="toggleTimeline(this)">일정 더보기 ▾</div>
+                    </div>
+                </div>
+                <div class="scroll-progress-box"><div class="scroll-progress"><div class="progress-bar" id="day-bar"></div></div></div>
+            </div>
+        </section>
+
+        <section>
+            <span class="s-label">03 / Recommendation</span>
+            <h2 class="s-title">보람찬투어 추천 스팟</h2>
+            
+            <h3 class="sub-title">Dining & Cafe</h3>
+            <div class="scroller-container">
+                <div class="h-scroller" id="dining-scroller">
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_1.jpg"><span class="info-btn-circle" onclick="openPopup('biku')">+</span></div><p class="c-title">Biku</p><span class="c-tag">Tea & Dining</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_2.jpg"><span class="info-btn-circle" onclick="openPopup('revolver')">+</span></div><p class="c-title">Revolver</p><span class="c-tag">Cafe</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_3.jpg"><span class="info-btn-circle" onclick="openPopup('nia')">+</span></div><p class="c-title">Warung Nia</p><span class="c-tag">BBQ Ribs</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_4.jpg"><span class="info-btn-circle" onclick="openPopup('crate')">+</span></div><p class="c-title">Crate Cafe</p><span class="c-tag">Brunch</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_5.jpg"><span class="info-btn-circle" onclick="openPopup('sensorium')">+</span></div><p class="c-title">Sensorium Bali</p><span class="c-tag">Fusion Lunch</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_6.jpg"><span class="info-btn-circle" onclick="openPopup('pennylane')">+</span></div><p class="c-title">Penny Lane</p><span class="c-tag">Concept Dining</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_7.jpg"><span class="info-btn-circle" onclick="openPopup('milu')">+</span></div><p class="c-title">MILU By Nook</p><span class="c-tag">Ricefield Dining</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_8.jpg"><span class="info-btn-circle" onclick="openPopup('woods')">+</span></div><p class="c-title">Woods Pererenan</p><span class="c-tag">Cafe / Dining</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_9.jpg"><span class="info-btn-circle" onclick="openPopup('blacksand')">+</span></div><p class="c-title">Black Sand Brewery</p><span class="c-tag">Brewery Pub</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_10.jpg"><span class="info-btn-circle" onclick="openPopup('pison_petitenget')">+</span></div><p class="c-title">Pison, Petitenget</p><span class="c-tag">Cafe</span></div>
+                </div>
+                <div class="scroll-progress-box"><div class="scroll-progress"><div class="progress-bar" id="dining-bar"></div></div></div>
+            </div>
+
+            <h3 class="sub-title" style="margin-top: 20px;">Attractions & Clubs</h3>
+            <div class="scroller-container" style="padding-bottom: 60px;">
+                <div class="h-scroller" id="attraction-scroller">
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_11.jpg"><span class="info-btn-circle" onclick="openPopup('indigo')">+</span></div><p class="c-title">Hotel Indigo</p><span class="c-tag">Stay</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_12.jpg"><span class="info-btn-circle" onclick="openPopup('potatohead')">+</span></div><p class="c-title">Potato Head</p><span class="c-tag">Beach Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_13.jpg"><span class="info-btn-circle" onclick="openPopup('mexicola')">+</span></div><p class="c-title">Motel Mexicola</p><span class="c-tag">Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_14.jpg"><span class="info-btn-circle" onclick="openPopup('favela')">+</span></div><p class="c-title">La Favela</p><span class="c-tag">Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_15.jpg"><span class="info-btn-circle" onclick="openPopup('shishi')">+</span></div><p class="c-title">ShiShi Nightclub</p><span class="c-tag">Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_16.jpg"><span class="info-btn-circle" onclick="openPopup('samadi')">+</span></div><p class="c-title">SΛMΛDI Yoga</p><span class="c-tag">Wellness</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_17.jpg"><span class="info-btn-circle" onclick="openPopup('deus')">+</span></div><p class="c-title">Deus Ex Machina</p><span class="c-tag">Shopping</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_18.jpg"><span class="info-btn-circle" onclick="openPopup('labrisa')">+</span></div><p class="c-title">La Brisa</p><span class="c-tag">Beach Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_19.jpg"><span class="info-btn-circle" onclick="openPopup('finns')">+</span></div><p class="c-title">Finns Beach Club</p><span class="c-tag">Beach Club</span></div>
+                    <div class="spot-card"><div class="spot-img"><img src="짱구_카드_20.jpg"><span class="info-btn-circle" onclick="openPopup('ticket')">+</span></div><p class="c-title">Ticket To The Moon</p><span class="c-tag">Shopping</span></div>
+                </div>
+                <div class="scroll-progress-box"><div class="scroll-progress"><div class="progress-bar" id="attraction-bar"></div></div></div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="f-logo">보람찬투어 X FANDING</div>
+            <p class="f-copy">© 2026 THE EDITORIAL ARCHIVE.</p>
+        </footer>
+    </main>
+
+    <div class="modal-overlay" id="info-modal" onclick="closePopup()">
+        <div class="center-modal" onclick="event.stopPropagation()">
+            <div class="modal-img-box"><img id="p-image" src="" alt="Place Image"></div>
+            <div class="modal-body">
+                <div class="modal-close" onclick="closePopup()">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L15 15M1 15L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h2 class="m-title" id="p-title">Place Name</h2>
+                
+                <p class="m-note" id="p-note">특이사항 텍스트</p>
+                
+                <div style="margin-top: 20px; border-top: 0.5px solid #eee; padding-top: 15px;">
+                    <div class="m-info-row">
+                        <span class="m-icon">📞</span>
+                        <span id="p-phone">전화번호</span>
+                    </div>
+                    <div class="m-info-row">
+                        <span class="m-icon">⏰</span>
+                        <span id="p-hours">영업시간</span>
+                    </div>
+                </div>
+                
+                <a href="#" target="_blank" class="m-map-btn" id="p-map">OPEN IN MAPS ↗</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const intro = document.getElementById('intro-overlay');
+            const main = document.getElementById('main-content');
+            setTimeout(() => { intro.classList.add('fade-out'); setTimeout(() => { main.classList.add('active'); }, 600); }, 1000);
+        });
+
+        const handleScroll = (scrollerId, barId) => {
+            const scroller = document.getElementById(scrollerId);
+            const bar = document.getElementById(barId);
+            const parent = bar.parentElement;
+            scroller.addEventListener('scroll', () => {
+                const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth;
+                if(maxScrollLeft <= 0) return;
+                const progress = scroller.scrollLeft / maxScrollLeft;
+                const maxTranslate = parent.offsetWidth - bar.offsetWidth;
+                bar.style.transform = `translateX(${progress * maxTranslate}px)`; 
+            });
+        };
+        handleScroll('day-scroller', 'day-bar');
+        handleScroll('dining-scroller', 'dining-bar');
+        handleScroll('attraction-scroller', 'attraction-bar');
+
+        function toggleTimeline(btn) {
+            const card = btn.closest('.day-card');
+            card.classList.toggle('expanded');
+            btn.innerHTML = card.classList.contains('expanded') ? '일정 접기 ▴' : '일정 더보기 ▾';
+        }
+
+        const placeData = {
+            "indigo": { title: "Hotel Indigo Seminyak", phone: "+62 361 2099999", hours: "Check-in 15:00", note: "2일차의 베이스캠프! 디자인 호텔 인증샷 필수", map: "https://www.google.com/maps/search/?api=1&query=Hotel+Indigo+Bali+Seminyak+Beach", image: "짱구_팝업창_1.jpg" },
+            "biku": { title: "Biku", phone: "+62 811-388-8472", hours: "08:00 - 23:00", note: "빈티지 분위기 애프터눈 티. 타로 점 사전 예약 필수", map: "https://www.google.com/maps/search/?api=1&query=Biku+Bali", image: "짱구_팝업창_2.jpg" },
+            "potatohead": { title: "Potato Head Beach Club", phone: "+62 361 6207979", hours: "10:00 - 00:00", note: "제로 웨이스트 컨셉. 입장료는 식음료로 환원 가능", map: "https://www.google.com/maps/search/?api=1&query=Potato+Head+Beach+Club+Bali", image: "짱구_팝업창_3.jpg" },
+            "mexicola": { title: "Motel Mexicola", phone: "+62 361 736688", hours: "11:00 - 01:00", note: "화려한 원색 배경! 밤 9시 이후 핫한 파티 분위기", map: "https://www.google.com/maps/search/?api=1&query=Motel+Mexicola+Bali", image: "짱구_팝업창_4.jpg" },
+            "favela": { title: "La Favela", phone: "+62 818-0210-0010", hours: "19:00 - 03:00", note: "정글 인테리어 압권! 남성 복장 규정(슬리퍼/민소매 제한)", map: "https://www.google.com/maps/search/?api=1&query=La+Favela+Bali", image: "짱구_팝업창_5.jpg" },
+            "revolver": { title: "Revolver Seminyak", phone: "+62 812-3842-8343", hours: "07:00 - 23:00", note: "골목 구석 인더스트리얼 인테리어. 발리 3대 커피!", map: "https://www.google.com/maps/search/?api=1&query=Revolver+Seminyak", image: "짱구_팝업창_6.jpg" },
+            "square": { title: "Seminyak Square", phone: "+62 361 735288", hours: "10:00 - 22:00", note: "하이엔드 로컬 브랜드가 밀집된 쇼핑 스팟", map: "https://www.google.com/maps/search/?api=1&query=Seminyak+Square", image: "짱구_팝업창_7.jpg" },
+            "nia": { title: "Warung Nia", phone: "+62 812-3936-6697", hours: "10:00 - 22:00", note: "현지 맛집 정복! 폭립 맛집, 쿠킹 클래스도 운영", map: "https://www.google.com/maps/search/?api=1&query=Warung+Nia+Balinese+Food+%26+Pork+Ribs", image: "짱구_팝업창_8.jpg" },
+            "sugarsand": { title: "SugarSand", phone: "+62 361 2099999", hours: "10:00 - 01:00", note: "여유로운 힙캉스 분위기를 즐기는 풀사이드", map: "https://www.google.com/maps/search/?api=1&query=SugarSand+Bali", image: "짱구_팝업창_9.jpg" },
+            "kudeta": { title: "KU DE TA", phone: "+62 361 736969", hours: "08:00 - 02:00", note: "클래식하고 고급스러운 비치클럽의 정석", map: "https://www.google.com/maps/search/?api=1&query=KU+DE+TA+Bali", image: "짱구_팝업창_10.jpg" },
+            "shishi": { title: "ShiShi Nightclub", phone: "+62 819-1888-8059", hours: "17:00 - 04:00", note: "1층 이자카야 코스 유명. 수요일은 레이디스 나잇!", map: "https://www.google.com/maps/search/?api=1&query=ShiShi+Nightclub+Bali", image: "짱구_팝업창_11.jpg" },
+            "sate": { title: "Sate Babi Bu Manis", phone: "+62 813-3977-7057", hours: "10:00 - 19:00", note: "로컬 바이브로 마무리! 현지인 추천 사태 야식", map: "https://www.google.com/maps/search/?api=1&query=Sate+Babi+Bu+Manis", image: "짱구_팝업창_12.jpg" },
+            "samadi": { title: "SΛMΛDI Yoga", phone: "+62 812 3831 2505", hours: "07:00 - 21:00", note: "짱구의 아침 기운! 일요일 오가닉 마켓이 아주 힙함", map: "https://www.google.com/maps/search/?api=1&query=Samadi+Bali", image: "짱구_팝업창_13.jpg" },
+            "crate": { title: "Crate Cafe", phone: "+62 812-3894-3040", hours: "06:00 - 16:00", note: "푸짐한 양! 대화 집중을 위한 노 와이파이 정책", map: "https://www.google.com/maps/search/?api=1&query=Crate+Cafe+Canggu", image: "짱구_팝업창_14.jpg" },
+            "deus": { title: "Deus Ex Machina", phone: "+62 361 736111", hours: "08:00 - 00:00", note: "서핑/바이크 복합 문화 공간. 일요일 저녁 라이브!", map: "https://www.google.com/maps/search/?api=1&query=Deus+Ex+Machina+Canggu", image: "짱구_팝업창_15.jpg" },
+            "sensorium": { title: "Sensorium Bali", phone: "+62 811-388-046", hours: "09:00 - 16:00", note: "호주식 미니멀 감성 런치. 오픈런 필수(예약 불가)", map: "https://www.google.com/maps/search/?api=1&query=Sensorium+Bali", image: "짱구_팝업창_16.jpg" },
+            "labrisa": { title: "La Brisa", phone: "+62 811-3946-666", hours: "10:00 - 23:00", note: "난파선 목재 활용. 동화 같은 빈백 선셋 무드", map: "https://www.google.com/maps/search/?api=1&query=La+Brisa+Bali", image: "짱구_팝업창_17.jpg" },
+            "pennylane": { title: "Penny Lane", phone: "+62 851-7442-7085", hours: "08:00 - 00:00", note: "독보적인 신전 인테리어! 압도적인 인생샷 성지", map: "https://www.google.com/maps/search/?api=1&query=Penny+Lane+Bali", image: "짱구_팝업창_18.jpg" },
+            "echo": { title: "Echo Beach", phone: "정보 없음", hours: "24시간", note: "파도 소리와 함께 조용히 즐기는 바다 근처 릴랙싱", map: "https://www.google.com/maps/search/?api=1&query=Echo+Beach+Canggu", image: "짱구_팝업창_19.jpg" },
+            "pasar": { title: "Pasar Semat Sari", phone: "정보 없음", hours: "06:00 - 12:00", note: "저렴한 로컬 과일 시식 및 쇼핑, 재래시장 체험", map: "https://www.google.com/maps/search/?api=1&query=Pasar+Semat+Sari", image: "짱구_팝업창_20.jpg" },
+            "milk": { title: "Milk & Madu Berawa", phone: "+62 851-0278-1872", hours: "07:30 - 22:00", note: "화/일 오후 피자 1+1, 금요일 파스타 프로모션!", map: "https://www.google.com/maps/search/?api=1&query=Milk+and+Madu+Berawa", image: "짱구_팝업창_21.jpg" },
+            "milu": { title: "MILU By Nook", phone: "+62 822-4711-4441", hours: "08:00 - 23:00", note: "가성비 좋고 뷰가 훌륭한 짱구 논뷰 레스토랑", map: "https://www.google.com/maps/search/?api=1&query=MILU+By+Nook", image: "짱구_팝업창_22.jpg" },
+            "ticket": { title: "Ticket To The Moon", phone: "+62 361 419 288", hours: "10:00 - 20:00", note: "발리 특산품 해먹 브랜드. 가방류 기념품 구매 필수", map: "https://www.google.com/maps/search/?api=1&query=Ticket+To+The+Moon+Canggu", image: "짱구_팝업창_23.jpg" },
+            "finns": { title: "Finns Beach Club", phone: "+62 361 8446327", hours: "10:00 - 00:00", note: "짱구 최대 규모! 화려한 조명과 대규모 비치 파티", map: "https://www.google.com/maps/search/?api=1&query=Finns+Beach+Club+Bali", image: "짱구_팝업창_24.jpg" },
+            "blacksand": { title: "Black Sand Brewery", phone: "+62 812-3754-2129", hours: "12:00 - 00:00", note: "직접 양조한 수제 맥주와 세련된 펍 분위기", map: "https://www.google.com/maps/search/?api=1&query=Black+Sand+Brewery", image: "짱구_팝업창_25.jpg" },
+            "woods": { title: "Woods Pererenan", phone: "+62 853-3393-3558", hours: "08:00 - 23:00", note: "숲 컨셉의 고급스러운 인테리어. 재즈 공연 관람", map: "https://www.google.com/maps/search/?api=1&query=Woods+Bali+Pererenan", image: "짱구_팝업창_26.jpg" },
+            "bintang": { title: "Bintang Supermarket", phone: "+62 361 730552", hours: "07:30 - 22:00", note: "엘립스 오일, 삼발 소스 등 귀국 전 필수 쇼핑", map: "https://www.google.com/maps/search/?api=1&query=Bintang+Supermarket+Seminyak", image: "짱구_팝업창_27.jpg" },
+            "pison_petitenget": { title: "Pison, Petitenget", phone: "+62 821-4456-0066", hours: "07:00 - 01:00", note: "아보카도 커피 시그니처. 저녁 라이브 밴드 공연", map: "https://www.google.com/maps/search/?api=1&query=Pison+Coffee+Petitenget", image: "짱구_팝업창_28.jpg" },
+            "airport": { title: "응우라라이 공항", phone: "정보 없음", hours: "-", note: "4박 6일의 보람찬 투어 일정을 마무리합니다.", map: "https://www.google.com/maps/search/?api=1&query=Ngurah+Rai+International+Airport", image: "짱구_팝업창_29.jpg" },
+            
+            "fairfield": { title: "Fairfield Bali", phone: "+62 361 4753111", hours: "Check-in 15:00", note: "1일차 휴식을 책임질 쾌적한 메리어트 계열 숙소", map: "https://www.google.com/maps/place/Fairfield+by+Marriott+Bali+South+Kuta/@-8.7286325,115.1589517,14z/data=!4m13!1m2!2m1!1z7Y6Y7Ja07ZWE65OcIOuwnOumrA!3m9!1s0x2dd2441f0cad2931:0x424ac9da01fb7696!5m2!4m1!1i2!8m2!3d-8.7373151!4d115.1666252!15sChPtjpjslrTtlYTrk5wg67Cc66asWhYiFO2OmOyWtCDtlYTrk5wg67Cc66askgEFaG90ZWzgAQA!16s%2Fg%2F11c1mc6nyx?authuser=0&entry=ttu&g_ep=EgoyMDI2MDMwMi4wIKXMDSoASAFQAw%3D%3D", image: "페어필드.jpg" }
+        };
+
+        function openPopup(id) {
+            const data = placeData[id];
+            if(!data) return;
+            
+            const popupImg = document.getElementById('p-image');
+            popupImg.style.opacity = 0;
+            
+            setTimeout(() => {
+                popupImg.src = data.image;
+                popupImg.onload = () => popupImg.style.opacity = 1;
+            }, 50);
+
+            document.getElementById('p-title').innerText = data.title;
+            document.getElementById('p-note').innerText = data.note;
+            document.getElementById('p-phone').innerText = data.phone; 
+            document.getElementById('p-hours').innerText = data.hours;
+            document.getElementById('p-map').href = data.map;
+            
+            document.getElementById('info-modal').classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closePopup() {
+            document.getElementById('info-modal').classList.remove('active');
+            document.body.style.overflow = ''; 
+        }
+
+        window.addEventListener('load', () => {
+            Object.values(placeData).forEach(data => {
+                const img = new Image();
+                img.src = data.image;
+            });
+        });
+    </script>
+</body>
+</html>
